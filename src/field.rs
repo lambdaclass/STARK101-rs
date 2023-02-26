@@ -1,7 +1,7 @@
 use rand::Rng;
 
 /// An implementation of field elements from F_(3 * 2**30 + 1).
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct FieldElement(usize);
 
 impl FieldElement {
@@ -73,7 +73,7 @@ impl FieldElement {
         let mut fe = FieldElement::new(rng.gen::<usize>());
         while excluded_elements.contains(&fe) {
             fe = FieldElement::new(rng.gen::<usize>());
-        };
+        }
         fe
     }
 }
@@ -81,6 +81,12 @@ impl FieldElement {
 impl From<usize> for FieldElement {
     fn from(value: usize) -> Self {
         FieldElement::new(value)
+    }
+}
+
+impl From<FieldElement> for usize {
+    fn from(value: FieldElement) -> Self {
+        value.0
     }
 }
 
@@ -151,7 +157,6 @@ impl std::ops::MulAssign<&FieldElement> for FieldElement {
     }
 }
 
-
 impl std::ops::Sub for FieldElement {
     type Output = FieldElement;
 
@@ -201,7 +206,7 @@ mod tests {
     fn inverse_test() {
         let x = FieldElement::new(2);
         let x_inv = x.inverse();
-    
+
         assert_eq!(FieldElement::one(), x * x_inv)
     }
 
@@ -211,14 +216,14 @@ mod tests {
         let t = FieldElement(2).pow(30) * FieldElement(3) + FieldElement::one();
         assert!(t == FieldElement::zero())
     }
-    
+
     #[test]
     fn test_field_div() {
         for _ in 1..10000 {
-        let t = FieldElement::random_element(&[FieldElement::zero()]);
-        let t_inv = FieldElement::one() / t;
-        assert!(t_inv == t.inverse());
-        assert!(t_inv * t == FieldElement::one());
+            let t = FieldElement::random_element(&[FieldElement::zero()]);
+            let t_inv = FieldElement::one() / t;
+            assert!(t_inv == t.inverse());
+            assert!(t_inv * t == FieldElement::one());
         }
     }
 }
