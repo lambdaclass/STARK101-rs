@@ -242,7 +242,7 @@ impl Polynomial {
     }
 
     /// Returns a polynomial of degree < len(x_values) that evaluates to y_values[i] on x_values[i] for all i.
-    pub fn interpolate_poly(x_values: &[FieldElement], y_values: &[FieldElement]) -> Polynomial {
+    pub fn interpolate(x_values: &[FieldElement], y_values: &[FieldElement]) -> Polynomial {
         assert!(x_values.len() == y_values.len());
         let lp = Self::calculate_lagrange_polynomials(x_values);
         Self::interpolate_poly_lagrange(y_values, lp)
@@ -384,6 +384,14 @@ impl std::ops::Neg for Polynomial {
 
     fn neg(self) -> Self::Output {
         Polynomial(vec![]) - self
+    }
+}
+
+impl std::ops::Mul<Polynomial> for usize {
+    type Output = Polynomial;
+
+    fn mul(self, rhs: Polynomial) -> Self::Output {
+        rhs * self
     }
 }
 
@@ -551,7 +559,7 @@ mod tests {
             let x_values: Vec<FieldElement> = x_values_set.into_iter().collect_vec();
             let y_values = x_values.clone().into_iter().map(|x| p.eval(x)).collect_vec();
             // Obtain a polynomial from the evaluation.
-            let interpolated_p = Polynomial::interpolate_poly(&x_values, &y_values);
+            let interpolated_p = Polynomial::interpolate(&x_values, &y_values);
             assert_eq!(p, interpolated_p)
         }
     }
