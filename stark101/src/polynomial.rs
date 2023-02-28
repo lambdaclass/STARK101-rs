@@ -30,7 +30,7 @@ impl Polynomial {
     }
 
     /// Computes the product of the given polynomials.
-    fn prod(values: &[Polynomial]) -> Polynomial {
+    pub fn prod(values: &[Polynomial]) -> Polynomial {
         let len_values = values.len();
         if len_values == 0 {
             return Polynomial(vec![FieldElement::one()]);
@@ -38,8 +38,16 @@ impl Polynomial {
         if len_values == 1 {
             return values.first().unwrap().to_owned().into();
         };
-        let prod_left = values.into_iter().take(len_values / 2).map(ToOwned::to_owned).collect_vec();
-        let prod_right = values.into_iter().skip(len_values / 2).map(ToOwned::to_owned).collect_vec();
+        let prod_left = values
+            .into_iter()
+            .take(len_values / 2)
+            .map(ToOwned::to_owned)
+            .collect_vec();
+        let prod_right = values
+            .into_iter()
+            .skip(len_values / 2)
+            .map(ToOwned::to_owned)
+            .collect_vec();
         Self::prod(&prod_left) * Self::prod(&prod_right)
     }
 
@@ -102,9 +110,9 @@ impl Polynomial {
         l1.into_iter()
             .zip_longest(l2)
             .map(|x| match x {
-                EitherOrBoth::Both(e1, e2) => operation(*e1, *e2),
-                EitherOrBoth::Left(e) => operation(*e, fill_value),
-                EitherOrBoth::Right(e) => operation(*e, fill_value),
+                EitherOrBoth::Both(e1, e2) => operation(e1.to_owned(), e2.to_owned()),
+                EitherOrBoth::Left(e) => operation(e.to_owned(), fill_value),
+                EitherOrBoth::Right(e) => operation(e.to_owned(), fill_value),
             })
             .collect()
     }
@@ -132,6 +140,7 @@ impl Polynomial {
         }
         val
     }
+
 
     /// Calculates self^other using repeated squaring.
     pub fn pow(&self, other: usize) -> Self {
@@ -201,7 +210,7 @@ impl Polynomial {
     /// Returns q, r the quotient and remainder polynomials respectively, such that
     /// f = q * g + r, where deg(r) < deg(g).
     /// * Assert that g is not the zero polynomial.
-    fn qdiv(&self, other: impl Into<Polynomial>) -> (Polynomial, Polynomial) {
+    pub fn qdiv(&self, other: impl Into<Polynomial>) -> (Polynomial, Polynomial) {
         let other_poly: Polynomial = other.into();
         let other_elems = Polynomial::trim_trailing_zeros(&other_poly.0);
         assert!(!other_elems.is_empty(), "Dividing by zero polynomial.");
@@ -214,8 +223,8 @@ impl Polynomial {
         let mut degree_difference = rem.len() as isize - other_elems.len() as isize;
         let mut quotient = if degree_difference > 0 {
             vec![FieldElement::zero()]
-            .repeat((degree_difference + 1) as usize)
-            .to_vec()
+                .repeat((degree_difference + 1) as usize)
+                .to_vec()
         } else {
             vec![FieldElement::zero()]
         };
@@ -247,14 +256,14 @@ impl Polynomial {
         let lp = Self::calculate_lagrange_polynomials(x_values);
         Self::interpolate_poly_lagrange(y_values, lp)
     }
-    
+
     // Composes this polynomial with `other`.
     // Example:
     // f = x().pow(2) + x()
     // g = x() + 1
     // f.compose(g) == (2 + x()*3 + x().pow(2))
     pub fn compose(&self, other: impl Into<Polynomial>) -> Polynomial {
-        let other_poly: Polynomial =  other.into();
+        let other_poly: Polynomial = other.into();
         let mut res = Polynomial(vec![]);
         for coef in self.0.clone().into_iter().rev() {
             res = (res * other_poly.clone()) + Polynomial(vec![coef]);
@@ -375,7 +384,8 @@ impl std::ops::Sub<FieldElement> for Polynomial {
 
     fn sub(self, other: FieldElement) -> Self::Output {
         let other_poly: Polynomial = other.into();
-        self + other_poly
+
+        self - other_poly
     }
 }
 
@@ -442,6 +452,7 @@ impl std::ops::Div for Polynomial {
 
     fn div(self, other: Self) -> Self::Output {
         let (div, rem) = self.qdiv(other);
+
         assert!(rem.0.is_empty(), "Polynomials are not divisible.");
         div
     }
@@ -462,6 +473,15 @@ impl std::ops::Div<FieldElement> for Polynomial {
     fn div(self, other: FieldElement) -> Self::Output {
         let other_poly: Polynomial = other.into();
         self / other_poly
+    }
+}
+
+impl std::ops::Rem for Polynomial {
+    type Output = Polynomial;
+
+    fn rem(self, other: Self) -> Self::Output {
+        let (_, remainder) = self.qdiv(other);
+        remainder
     }
 }
 
@@ -500,8 +520,8 @@ mod tests {
 
     #[test]
     fn test_div() {
-        let p = x().pow(2) - 1;
-        assert_eq!(p / (x() - 1), x() + 1)
+        let p = x().pow(2) - FieldElement::one();
+        assert_eq!(p / (x() - FieldElement::one()), x() + FieldElement::one())
     }
 
     #[test]
@@ -514,14 +534,14 @@ mod tests {
     fn test_prod() {
         let g = FieldElement::generator().pow((FieldElement::k_modulus() - 1) / 1024);
         let polys = (0..1024).into_iter().map(|i| x() - g.pow(i)).collect_vec();
-        assert_eq!(x().pow(1024) - 1, Polynomial::prod(&polys))
+        assert_eq!(x().pow(1024) - FieldElement::one(), Polynomial::prod(&polys))
     }
 
     #[test]
     fn test_call_compose() {
         let p = x().pow(2) + x();
-        assert_eq!(p(x() + 1), x().pow(2) + x()*3usize + 2)
-    } 
+        assert_eq!(p(x() + 1), x().pow(2) + x() * 3usize + 2)
+    }
 
     #[test]
     fn test_call_eval() {
@@ -557,7 +577,11 @@ mod tests {
                 x_values_set.insert(FieldElement::random_element(&[]));
             }
             let x_values: Vec<FieldElement> = x_values_set.into_iter().collect_vec();
-            let y_values = x_values.clone().into_iter().map(|x| p.eval(x)).collect_vec();
+            let y_values = x_values
+                .clone()
+                .into_iter()
+                .map(|x| p.eval(x))
+                .collect_vec();
             // Obtain a polynomial from the evaluation.
             let interpolated_p = Polynomial::interpolate(&x_values, &y_values);
             assert_eq!(p, interpolated_p)
