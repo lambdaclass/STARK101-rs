@@ -2,7 +2,7 @@ use rand::Rng;
 
 /// An implementation of field elements from F_(3 * 2**30 + 1).
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub struct FieldElement(usize);
+pub struct FieldElement(pub usize);
 
 impl FieldElement {
     pub fn new(value: usize) -> Self {
