@@ -11,6 +11,18 @@ Sessions, and authored by the [StarkWare](https://starkware.co) team.
 Note that it was written assuming that the user has reviewed and understood the presentations at the
 beginning of each part.
 
+## Setup
+
+In order to follow this workshop you need:
+- Have a working installation of Rust and Jupyter
+- Install evcxr_jupyter
+   > cargo install evcxr_jupyter
+- Run the following command to register the Rust kernel:
+   > evcxr_jupyter --install
+- Run Jupyter
+   > jupyter lab
+
+
 ## Math Background
 
 During the tutorial you’ll generate a STARK proof for the 1023<sup>rd</sup> element of the
