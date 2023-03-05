@@ -61,7 +61,7 @@ _q_ ( _x_ ) = _x_ y _r_ ( _x_ ) = 1. De hecho, _x_<sup>3</sup> + _x_ + 1 = ( _x_
 
 ### Raíces de Polinomios
 
-Cuando un polinomio satisface _f_ (_a_) = 0 para algún valor específico _a_ (decimos que _a_ es una raíz de _f_), entonces no tenemos un residuo (_r_ ( _x_ ) = 0) al dividirlo por  (_x_ - _a_), por lo que podemos escribir _f_ (_x_) = ((_x_ - _a_) \* _q_ ( _x_ ), y deg(_q_) = deg(_f_) - 1. Un hecho similar es cierto para _k_ raíces. Es decir, si _a_<sub>i</sub> es una raíz de _f_ para todos los _i_ = 1, 2, …, _k_, entonces existe un polinomio _q_ de grado deg(_f_) - _k_ para el cual  _f_ ( _x_ ) = ( _x_ - _a_<sub>1</sub> )( _x_ -
+Cuando un polinomio satisface _f_ (_a_) = 0 para algún valor específico _a_ (decimos que _a_ es una raíz de _f_), entonces no tenemos un residuo (_r_ ( _x_ ) = 0) al dividirlo por  (_x_ - _a_), por lo que podemos escribir _f_ (_x_) = (_x_ - _a_) \* _q_ ( _x_ ), y deg(_q_) = deg(_f_) - 1. Un hecho similar es cierto para _k_ raíces. Es decir, si _a_<sub>i</sub> es una raíz de _f_ para todos los _i_ = 1, 2, …, _k_, entonces existe un polinomio _q_ de grado deg(_f_) - _k_ para el cual  _f_ ( _x_ ) = ( _x_ - _a_<sub>1</sub> )( _x_ -
 _a_<sub>2</sub> ) … ( _x_ - _a_<sub>_k_</sub> ) \* _q_ ( _x_ ) .
 
 ### ¿Quieres saber más?
