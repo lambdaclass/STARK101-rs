@@ -35,6 +35,6 @@ pub fn part1() -> (
         .map(|d| p.clone().eval(d))
         .collect();
     let mt = MerkleTree;
-    let ch = Channel;
+    let ch = Channel::new();
     (t, g, points, h_gen, h, domain, p, ev, mt, ch)
 }

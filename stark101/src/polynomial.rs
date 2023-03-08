@@ -141,7 +141,6 @@ impl Polynomial {
         val
     }
 
-
     /// Calculates self^other using repeated squaring.
     pub fn pow(&self, other: usize) -> Self {
         let mut other = other;
@@ -280,6 +279,18 @@ impl FnOnce<(Polynomial,)> for Polynomial {
     }
 }
 
+impl FnMut<(Polynomial,)> for Polynomial {
+    extern "rust-call" fn call_mut(&mut self, args: (Polynomial,)) -> Self::Output {
+        self.compose(args.0)
+    }
+}
+
+impl Fn<(Polynomial,)> for Polynomial {
+    extern "rust-call" fn call(&self, args: (Polynomial,)) -> Self::Output {
+        self.compose(args.0)
+    }
+}
+
 impl FnOnce<(FieldElement,)> for Polynomial {
     type Output = FieldElement;
 
@@ -288,10 +299,36 @@ impl FnOnce<(FieldElement,)> for Polynomial {
     }
 }
 
+impl FnMut<(FieldElement,)> for Polynomial {
+    extern "rust-call" fn call_mut(&mut self, args: (FieldElement,)) -> Self::Output {
+        self.eval(args.0)
+    }
+}
+
+impl Fn<(FieldElement,)> for Polynomial {
+    extern "rust-call" fn call(&self, args: (FieldElement,)) -> Self::Output {
+        self.eval(args.0)
+    }
+}
+
 impl FnOnce<(i128,)> for Polynomial {
     type Output = FieldElement;
 
     extern "rust-call" fn call_once(self, args: (i128,)) -> Self::Output {
+        let fe: FieldElement = args.0.into();
+        self.eval(fe)
+    }
+}
+
+impl FnMut<(i128,)> for Polynomial {
+    extern "rust-call" fn call_mut(&mut self, args: (i128,)) -> Self::Output {
+        let fe: FieldElement = args.0.into();
+        self.eval(fe)
+    }
+}
+
+impl Fn<(i128,)> for Polynomial {
+    extern "rust-call" fn call(&self, args: (i128,)) -> Self::Output {
         let fe: FieldElement = args.0.into();
         self.eval(fe)
     }
@@ -490,7 +527,7 @@ mod tests {
     use std::collections::HashSet;
 
     use super::{x, Polynomial};
-    use crate::field::FieldElement;
+    use crate::{field::FieldElement, parts};
     use itertools::Itertools;
     use rand::Rng;
 
@@ -534,7 +571,10 @@ mod tests {
     fn test_prod() {
         let g = FieldElement::generator().pow((FieldElement::k_modulus() - 1) / 1024);
         let polys = (0..1024).into_iter().map(|i| x() - g.pow(i)).collect_vec();
-        assert_eq!(x().pow(1024) - FieldElement::one(), Polynomial::prod(&polys))
+        assert_eq!(
+            x().pow(1024) - FieldElement::one(),
+            Polynomial::prod(&polys)
+        )
     }
 
     #[test]
@@ -600,5 +640,30 @@ mod tests {
             let expected = outer_poly.eval(inner_poly.eval(point));
             assert_eq!(result, expected);
         }
+    }
+
+    // 3141803001
+    // 1456324641
+
+    #[test]
+    fn test_polynomial_pow() {
+        let (_, g, _, _, _, _, f, _, _, _) = parts::part1();
+        let numer_1 = f(x() * g.pow(2));
+        let numer_2 = f(x() * g).pow(2)
+            * FieldElement::new((-1 + FieldElement::k_modulus() as i128) as usize);
+        let numer_3 =
+            f.pow(2) * FieldElement::new((-1 + FieldElement::k_modulus() as i128) as usize);
+        let numer = numer_1 + numer_2 + numer_3;
+        assert_eq!(FieldElement::new(0), numer(g.pow(1020)));
+        assert_eq!(FieldElement::new(230576507), numer(g.pow(1021)));
+    }
+
+    #[test]
+    fn test_compose_session2() {
+        let q = 2 * x().pow(2) + 1;
+        let r = x() - 3;
+        let expected = (2 * x().pow(2)) - 12 * x() + 19;
+
+        assert_eq!(expected, q(r));
     }
 }

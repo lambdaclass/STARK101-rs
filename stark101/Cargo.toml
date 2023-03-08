@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 rand = "0.8.5"
 itertools = "0.10.5"
+sha256 = "1.1.2"
+rs_merkle = "1.2"
