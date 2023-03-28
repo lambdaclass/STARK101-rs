@@ -7,7 +7,7 @@ pub fn x() -> Polynomial {
 
 /// Represents a polynomial over FieldElement.
 #[derive(Debug, PartialEq, Clone)]
-pub struct Polynomial(Vec<FieldElement>);
+pub struct Polynomial(pub Vec<FieldElement>);
 
 impl Polynomial {
     /// Creates a new Polynomial with the given coefficients.
@@ -447,9 +447,13 @@ impl std::ops::Mul for Polynomial {
 
     fn mul(self, other: Self) -> Self::Output {
         let mut res = [FieldElement::zero()].repeat((self.degree() + other.degree() + 1) as usize);
-        for (i, c1) in self.0.into_iter().enumerate() {
-            for (j, c2) in other.clone().0.into_iter().enumerate() {
-                res[i + j] += c1 * c2;
+        for (i, c1) in self.0.clone().into_iter().enumerate() {
+            if other.degree() > -1 {
+                for (j, c2) in other.clone().0.into_iter().enumerate() {
+                    if let Some(value) = res.get_mut(i + j) {
+                        *value += c1 * c2;
+                    }
+                }
             }
         }
         Polynomial(Self::trim_trailing_zeros(&res))
@@ -556,6 +560,15 @@ mod tests {
     }
 
     #[test]
+    fn test_poly_mul_empty() {
+        let empty_poly = Polynomial::new(&[]);
+        let result = empty_poly.clone() * FieldElement::new(3) * (x() + 1)
+            + empty_poly.clone() * Polynomial::prod(&[1.into(), 2.into(), 100.into()]);
+        let expected = empty_poly;
+        assert_eq!(result, expected)
+    }
+
+    #[test]
     fn test_div() {
         let p = x().pow(2) - FieldElement::one();
         assert_eq!(p / (x() - FieldElement::one()), x() + FieldElement::one())
@@ -641,9 +654,6 @@ mod tests {
             assert_eq!(result, expected);
         }
     }
-
-    // 3141803001
-    // 1456324641
 
     #[test]
     fn test_polynomial_pow() {
