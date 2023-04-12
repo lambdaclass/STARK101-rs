@@ -10,7 +10,7 @@ Tenga en cuenta que se supone que el usuario ha revisado y entendido las present
 
 ## Configuración
 
-Para seguir este taller necesitas:
+Para seguir este taller necesita:
 
 - Tener instalado Rust y Jupyter
 - Instalar evcxr_jupyter
@@ -22,7 +22,7 @@ Para seguir este taller necesitas:
 
 ## Antecedentes Matemáticos
 
-Durante el tutorial, generará una prueba STARK para el 1023<sup>rd</sup> elemento de la
+Durante el tutorial, generará una prueba STARK para el elemento 1023 de la
 secuencia FibonacciSq en un campo finito. En esta sección, explicamos lo que significa esta última oración.
 
 ### Campos Finitos
@@ -39,7 +39,7 @@ Todos los elementos de la secuencia serán del campo finito (lo que significa qu
 
 ### Prueba STARK
 
-Crearemos una prueba para la afirmación "El elemento 1023<sup>rd</sup> de la secuencia FibonacciSq es...". Por "prueba" no nos referimos a una prueba matemática con deducciones lógicas, sino a algunos datos que puedan convencer a quien los lea de que la afirmación es correcta. Para hacerlo más formal, definimos dos entidades: el **Probador** y el **Verificador**. El Probador genera estos datos (proof). El Verificador recibe estos datos y verifica su validez. El requisito es que si la afirmación es falsa, el Probador no podrá generar una prueba válida (incluso si se desvía del protocolo).
+Crearemos una prueba para la afirmación "El elemento 1023 de la secuencia FibonacciSq es...". Por "prueba" no nos referimos a una prueba matemática con deducciones lógicas, sino a algunos datos que puedan convencer a quien los lea de que la afirmación es correcta. Para hacerlo más formal, definimos dos entidades: el **Probador** y el **Verificador**. El Probador genera estos datos (proof). El Verificador recibe estos datos y verifica su validez. El requisito es que si la afirmación es falsa, el Probador no podrá generar una prueba válida (incluso si se desvía del protocolo).
 
 STARK es un protocolo específico que describe la estructura de tal prueba y define lo que el Probador y el Verificador tienen que hacer.
 
@@ -48,7 +48,7 @@ STARK es un protocolo específico que describe la estructura de tal prueba y def
 Le recomendamos que eche un vistazo a nuestras publicaciones matemáticas de [STARK math blog
 posts](https://medium.com/starkware/tagged/stark-math) (Arithmetization
 [I](https://medium.com/starkware/arithmetization-i-15c046390862) &
-[II](https://medium.com/starkware/arithmetization-ii-403c3b3f4355) specifically). No es necesario que las lea a fondo antes de seguir este tutorial, pero puede darle un mejor contexto sobre las cosas para las que puede crear pruebas y cómo se ve una prueba de STARK. Definitivamente debería leerlas después de completar este tutorial por completo.
+[II](https://medium.com/starkware/arithmetization-ii-403c3b3f4355), específicamente). No es necesario que las lea a fondo antes de seguir este tutorial, pero puede darle un mejor contexto sobre las cosas para las que puede crear pruebas y cómo se ve una prueba de STARK. Definitivamente debería leerlas después de completar este tutorial por completo.
 
 ### División de Polinomios
 
@@ -64,7 +64,7 @@ _q_ ( _x_ ) = _x_ y _r_ ( _x_ ) = 1. De hecho, _x_<sup>3</sup> + _x_ + 1 = ( _x_
 Cuando un polinomio satisface _f_ (_a_) = 0 para algún valor específico _a_ (decimos que _a_ es una raíz de _f_), entonces no tenemos un residuo (_r_ ( _x_ ) = 0) al dividirlo por  (_x_ - _a_), por lo que podemos escribir _f_ (_x_) = (_x_ - _a_) \* _q_ ( _x_ ), y deg(_q_) = deg(_f_) - 1. Un hecho similar es cierto para _k_ raíces. Es decir, si _a_<sub>i</sub> es una raíz de _f_ para todos los _i_ = 1, 2, …, _k_, entonces existe un polinomio _q_ de grado deg(_f_) - _k_ para el cual  _f_ ( _x_ ) = ( _x_ - _a_<sub>1</sub> )( _x_ -
 _a_<sub>2</sub> ) … ( _x_ - _a_<sub>_k_</sub> ) \* _q_ ( _x_ ) .
 
-### ¿Quieres saber más?
+### ¿Quiere saber más?
 
 1. Nigel Smart [“Cryptography Made Simple”](https://www.cs.umd.edu/~waa/414-F11/IntroToCrypto.pdf): 
    – Capítulo 1.1: Aritmética modular.
