@@ -81,6 +81,7 @@ pub fn part2() -> (Polynomial, Vec<FieldElement>, MerkleTree, Channel, Vec<Field
     (cp, cp_ev, cp_mt, ch_mut, domain)  
 }
 
+
 fn next_fri_domain(fri_domain: Vec<FieldElement>) -> Vec<FieldElement> {
     let fri_domain_len = fri_domain.len();
     fri_domain.into_iter().take(fri_domain_len / 2).map(|x| x.pow(2)).collect()
