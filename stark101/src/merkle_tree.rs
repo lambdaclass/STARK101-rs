@@ -1,7 +1,6 @@
 use crate::field::FieldElement;
 use rs_merkle::algorithms::Sha256;
 use rs_merkle::{self, Hasher};
-use hex;
 
 pub struct MerkleTree {
     inner: rs_merkle::MerkleTree<rs_merkle::algorithms::Sha256>,
