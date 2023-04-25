@@ -8,8 +8,8 @@ use sha256;
 /// FieldElements from it.
 #[derive(Debug, Clone)]
 pub struct Channel {
-    proof: Vec<String>,
-    state: String,
+    pub proof: Vec<String>,
+    pub state: String,
 }
 
 impl Channel {
