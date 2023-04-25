@@ -1,5 +1,5 @@
 use crate::{
-    channel::Channel, field::FieldElement, merkle_tree::MerkleTree, polynomial::Polynomial,
+    channel::{Channel, self}, field::FieldElement, merkle_tree::MerkleTree, polynomial::Polynomial,
 };
 
 pub fn part1() -> (
@@ -80,3 +80,50 @@ pub fn part2() -> (Polynomial, Vec<FieldElement>, MerkleTree, Channel, Vec<Field
 
     (cp, cp_ev, cp_mt, ch_mut, domain)  
 }
+
+fn next_fri_domain(fri_domain: Vec<FieldElement>) -> Vec<FieldElement> {
+    let fri_domain_len = fri_domain.len();
+    fri_domain.into_iter().take(fri_domain_len / 2).map(|x| x.pow(2)).collect()
+}
+
+fn next_fri_polynomial(poly: Polynomial,  beta: FieldElement) -> Polynomial {
+    let odd_coefficients: Vec<FieldElement> = poly.0.clone().into_iter().skip(1).step_by(2).collect();
+    let even_coefficients: Vec<FieldElement> = poly.0.into_iter().step_by(2).collect();
+    let odd = Polynomial::new(&odd_coefficients) * beta;
+    let even = Polynomial::new(&even_coefficients);
+    odd + even
+}
+
+fn next_fri_layer(poly: Polynomial, domain: Vec<FieldElement>, beta: FieldElement) -> (Polynomial, Vec<FieldElement>, Vec<FieldElement>) {
+    let next_poly = next_fri_polynomial(poly, beta);
+    let next_domain = next_fri_domain(domain);
+    let next_layer: Vec<FieldElement> = next_domain.clone().into_iter().map(|x| next_poly(x)).collect();
+    (next_poly, next_domain, next_layer)
+}
+
+fn fri_commit(cp: Polynomial, domain: Vec<FieldElement>, cp_eval: Vec<FieldElement>, cp_merkle: MerkleTree, channel: &mut Channel) -> (Vec<Polynomial>, Vec<Vec<FieldElement>>, Vec<Vec<FieldElement>>, Vec<MerkleTree>, Channel) {   
+    let mut fri_polys: Vec<Polynomial> = vec![cp];
+    let mut fri_domains: Vec<Vec<FieldElement>> = vec![domain];
+    let mut fri_layers: Vec<Vec<FieldElement>> = vec![cp_eval];
+    let mut fri_merkles: Vec<MerkleTree> = vec![cp_merkle];
+    while fri_polys.last().unwrap().degree() > 0 {
+        let beta = channel.receive_random_field_element();
+        let last_poly = fri_polys.last().unwrap().clone();
+        let last_domain = fri_domains.last().unwrap().clone();
+        let (next_poly, next_domain, next_layer) = next_fri_layer(last_poly, last_domain, beta);
+        fri_polys.push(next_poly.clone());
+        fri_domains.push(next_domain.clone());
+        fri_layers.push(next_layer.clone());
+        fri_merkles.push(MerkleTree::new(next_layer));
+        channel.send(fri_merkles.last().unwrap().root())
+    }
+    channel.send(fri_polys.last().unwrap().0[0].0.to_string());
+
+    (fri_polys, fri_domains, fri_layers, fri_merkles, channel.clone())
+}
+
+pub fn part3() -> (Vec<Polynomial>, Vec<Vec<FieldElement>>, Vec<Vec<FieldElement>>, Vec<MerkleTree>, Channel) {
+    let (cp, cp_ev, cp_mt, channel, domain) = part2();
+    let mut channel = channel.clone();
+    fri_commit(cp, domain, cp_ev, cp_mt, &mut channel)
+}   
